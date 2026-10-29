@@ -48,3 +48,15 @@
 .announcement{font-size:13px;letter-spacing:.17em;line-height:1.5;padding:12px 18px}
 .nav-links a{font-size:16px;font-weight:500;line-height:1.5}
 @media(max-width:780px){.announcement{font-size:11px;letter-spacing:.1em}.nav-links a{font-size:17px}}
+
+/* Readable typography throughout the storefront (without changing admin forms) */
+.lamajo{font-size:16px;line-height:1.55}
+.lamajo .kicker,.lamajo .pink-banner span,.lamajo .footer-top strong{font-size:13px}
+.lamajo .hero-small,.lamajo .hero-overlay,.lamajo .piece-tag,.lamajo .piece-line,.lamajo .filter-label{font-size:13px}
+.lamajo .marquee,.lamajo .filters button,.lamajo .text-btn,.lamajo .outline-btn,.lamajo .pink-banner a{font-size:14px}
+.lamajo .primary-btn,.lamajo .desktop-shop,.lamajo .piece-contact{font-size:13px}
+.lamajo .section-top p,.lamajo .section-top .section-subtitle,.lamajo .centered p,.lamajo .social-section p{font-size:16px}
+.lamajo .piece h3{font-size:18px}
+.lamajo .piece-price,.lamajo .footer-top p,.lamajo .footer-top a,.lamajo .footer-bottom,.lamajo .footer-bottom button{font-size:14px}
+.lamajo .about-text p,.lamajo .hero-copy p{font-size:16px}
+@media(max-width:780px){.lamajo .marquee{font-size:12px}.lamajo .piece-contact{font-size:12px}.lamajo .piece h3{font-size:16px}.lamajo .footer-bottom{font-size:13px}}
