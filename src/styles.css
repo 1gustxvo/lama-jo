@@ -7,3 +7,6 @@
 
 /* Ajustes de imagens e acesso ao editor */
 .admin-access{display:inline-flex;align-items:center;gap:7px;background:#f7e8ee;border:1px solid #e9cbd7;color:#92546d;padding:9px 12px;font-size:10px;letter-spacing:.08em;font-weight:700;white-space:nowrap;cursor:pointer}.admin-access:hover{background:#efd5df}.piece-image img{display:block;object-fit:cover;object-position:center 30%;aspect-ratio:3/4}.piece-image{isolation:isolate}.hero-photo img{display:block;object-position:center 35%}.about-photo img{display:block;object-position:center center}.modal-picture img{object-position:center 28%}@media(max-width:780px){.admin-access{padding:9px}.admin-access span{display:none}}@media(max-width:450px){.admin-access{padding:7px}.nav-actions{gap:9px}.piece-contact{font-size:9px;letter-spacing:0;padding:12px 5px}}
+
+/* Acesso ao editor dentro do menu mobile */
+.mobile-panel-link{display:none}@media(max-width:780px){.nav-links .mobile-panel-link{display:flex;align-items:center;gap:12px;width:100%;padding:17px 0;margin-top:10px;border:0;border-top:1px solid #ecd4de;background:transparent;color:#9b5874;text-align:left;font-size:12px;font-weight:700;letter-spacing:.09em;cursor:pointer}.nav-actions>.admin-access{display:none}}
