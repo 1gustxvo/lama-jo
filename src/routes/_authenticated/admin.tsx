@@ -28,7 +28,7 @@ function AdminPage() {
   const navigate = useNavigate();
   const { user } = Route.useRouteContext();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"products" | "categories" | "account">("products");
+  const [tab, setTab] = useState<"products" | "categories">("products");
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState(emptyForm);
@@ -37,10 +37,6 @@ function AdminPage() {
   const [catEditing, setCatEditing] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const [newEmail, setNewEmail] = useState("Cllarac701@gmail.com");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [emailBusy, setEmailBusy] = useState(false);
-  const [emailNotice, setEmailNotice] = useState("");
 
   const load = useCallback(async () => {
     const [c, p] = await Promise.all([
@@ -54,42 +50,6 @@ function AdminPage() {
     supabase.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => { setIsAdmin(!!data); if (data) load(); });
   }, [user.id, load]);
-
-  const changeEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setEmailNotice("");
-    const email = newEmail.trim().toLowerCase();
-    if (!email || !currentPassword || !user.email) {
-      setEmailNotice("Informe o novo e-mail e sua senha atual.");
-      return;
-    }
-    if (email === user.email.toLowerCase()) {
-      setEmailNotice("O novo e-mail deve ser diferente do atual.");
-      return;
-    }
-    setEmailBusy(true);
-    try {
-      // Reauthenticate before requesting a sensitive account change.
-      const { error: authError, data: authData } = await supabase.auth.signInWithPassword({
-        email: user.email, password: currentPassword,
-      });
-      if (authError || authData.user?.id !== user.id) {
-        setEmailNotice("Não foi possível confirmar sua identidade. Confira a senha atual.");
-        return;
-      }
-      const { error } = await supabase.auth.updateUser({ email });
-      if (error) {
-        setEmailNotice("Não foi possível solicitar a alteração: " + error.message);
-        return;
-      }
-      setCurrentPassword("");
-      setEmailNotice("Solicitação enviada. Verifique as mensagens de confirmação no e-mail atual e no novo e-mail, conforme as configurações do Supabase. Continue usando o e-mail atual até a troca ser confirmada.");
-    } catch {
-      setEmailNotice("Ocorreu um erro ao solicitar a alteração. Tente novamente.");
-    } finally {
-      setEmailBusy(false);
-    }
-  };
 
   const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/auth", replace: true }); };
   const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 4000); };
@@ -173,23 +133,12 @@ function AdminPage() {
       <div className="admin-tabs">
         <button className={tab === "products" ? "selected" : ""} onClick={() => setTab("products")}>Produtos</button>
         <button className={tab === "categories" ? "selected" : ""} onClick={() => setTab("categories")}>Categorias</button>
-        <button className={tab === "account" ? "selected" : ""} onClick={() => setTab("account")}>Minha conta</button>
       </div>
       <div className="nav-actions"><Link to="/" className="admin-link">VER SITE</Link><button onClick={signOut} className="admin-link">SAIR</button></div>
     </header>
     {msg && <div className="warning admin-msg">{msg}</div>}
     <main className="admin-main">
-      {tab === "account" ? <section className="editor-panel admin-card">
-        <span className="kicker">SEGURANÇA DA CONTA</span><h2>Alterar e-mail</h2>
-        <p>Conta atual: <strong>{user.email}</strong></p>
-        <p>A alteração mantém seu usuário e as permissões administrativas. O Supabase poderá exigir confirmação no endereço atual e no novo endereço.</p>
-        <form onSubmit={changeEmail} className="admin-form">
-          <label className="span-2">Novo e-mail<input type="email" autoComplete="email" required value={newEmail} onChange={e => setNewEmail(e.target.value)} /></label>
-          <label className="span-2">Senha atual<input type="password" autoComplete="current-password" required value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} /></label>
-          <div className="span-2 admin-actions"><button type="submit" className="primary-btn" disabled={emailBusy}>{emailBusy ? "AGUARDE..." : "SOLICITAR ALTERAÇÃO"}</button></div>
-        </form>
-        {emailNotice && <div className="warning" role="status">{emailNotice}</div>}
-      </section> : tab === "products" ? <>
+      {tab === "products" ? <>
         <section className="editor-panel admin-card">
           <span className="kicker">{editing ? "EDITANDO PRODUTO" : "NOVO PRODUTO"}</span>
           <h2>{editing ? "Editar peça" : "Cadastrar peça"}</h2>
