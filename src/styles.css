@@ -43,3 +43,8 @@
 .admin-inline{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
 .admin-inline input{flex:1;min-width:200px;padding:12px;border:1px solid #e8ccd7;background:#fff}
 @media (max-width:760px){.admin-page .header{flex-wrap:wrap}.admin-form{grid-template-columns:1fr}.admin-form .span-2{grid-column:span 1}.admin-row{flex-wrap:wrap}.admin-row-actions{width:100%}}
+
+/* Improved navigation and announcement readability */
+.announcement{font-size:13px;letter-spacing:.17em;line-height:1.5;padding:12px 18px}
+.nav-links a{font-size:16px;font-weight:500;line-height:1.5}
+@media(max-width:780px){.announcement{font-size:11px;letter-spacing:.1em}.nav-links a{font-size:17px}}
