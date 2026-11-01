@@ -69,7 +69,7 @@ function Home(){
        <img src="/capa-lancamento.png" alt="Uselamajo: em breve, lançamento da nova coleção de vestidos" style={{width:"100%",height:"auto",display:"block",borderRadius:12}}/>
        {launch.countdown_enabled&&launch.launch_at&&<section style={{padding:"24px 10px"}}><h2 style={{fontSize:"clamp(18px,3vw,28px)",color:"#a61957",marginBottom:18}}>Contagem regressiva ao vivo</h2><div style={{display:"flex",justifyContent:"center",gap:"clamp(8px,3vw,24px)",flexWrap:"wrap"}} aria-label="Contagem regressiva para o lançamento">{([[days,"Dias"],[hours,"Horas"],[minutes,"Minutos"],[seconds,"Segundos"]] as const).map(([n,label])=><div key={label} style={{minWidth:70,padding:12,background:"#f9d9e7",border:"1px solid #dc91b2",borderRadius:8}}><strong style={{fontSize:30,display:"block",color:"#98134d"}}>{String(n).padStart(2,"0")}</strong><span>{label}</span></div>)}</div></section>}
        <a className="primary-btn" href={instagram} target="_blank" rel="noreferrer"><Instagram size={18}/> ACOMPANHE NO INSTAGRAM</a>
-       <div style={{marginTop:24}}><Link to="/admin" style={{fontSize:12,color:"#9b7a84"}}>Área administrativa</Link></div>
+       
      </main>
    </div>;
  }
