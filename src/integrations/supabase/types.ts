@@ -56,6 +56,12 @@ export type Database = {
         }
         Relationships: []
       }
+      store_settings: {
+        Row: { id: number; launch_mode: boolean; countdown_enabled: boolean; launch_at: string | null; launch_title: string; launch_message: string; launch_image: string | null; updated_at: string }
+        Insert: { id?: number; launch_mode?: boolean; countdown_enabled?: boolean; launch_at?: string | null; launch_title?: string; launch_message?: string; launch_image?: string | null; updated_at?: string }
+        Update: { id?: number; launch_mode?: boolean; countdown_enabled?: boolean; launch_at?: string | null; launch_title?: string; launch_message?: string; launch_image?: string | null; updated_at?: string }
+        Relationships: []
+      }
       products: {
         Row: {
           active: boolean
