@@ -28,7 +28,7 @@ function AdminPage() {
   const navigate = useNavigate();
   const { user } = Route.useRouteContext();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"products" | "categories">("products");
+  const [tab, setTab] = useState<"products" | "categories" | "launch">("products");
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState(emptyForm);
@@ -37,6 +37,23 @@ function AdminPage() {
   const [catEditing, setCatEditing] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [launch,setLaunch]=useState({launch_mode:false,countdown_enabled:false,launch_at:"",launch_title:"Algo especial está chegando",launch_message:"Uma nova coleção Uselamajo está a caminho. Aguarde!",launch_image:""});
+  const [launchReady,setLaunchReady]=useState(false);
+  const [launchBusy,setLaunchBusy]=useState(false);
+  const loadLaunch=useCallback(async()=>{
+    const {data,error}=await supabase.from("store_settings").select("*").eq("id",1).maybeSingle();
+    setLaunchReady(!error&&!!data);
+    if(data)setLaunch({launch_mode:data.launch_mode,countdown_enabled:data.countdown_enabled,launch_at:data.launch_at?new Date(data.launch_at).toLocaleString("sv-SE",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).replace(" ","T"):"",launch_title:data.launch_title,launch_message:data.launch_message,launch_image:data.launch_image||""});
+  },[]);
+  const saveLaunch=async()=>{
+    if(launch.countdown_enabled&&(!launch.launch_at||!Number.isFinite(new Date(launch.launch_at).getTime())))return flash("Defina uma data válida.");
+    if(launch.launch_image&&!/^https:\/\//i.test(launch.launch_image))return flash("A imagem precisa ter URL HTTPS.");
+    setLaunchBusy(true);
+    const {error}=await supabase.from("store_settings").update({launch_mode:launch.launch_mode,countdown_enabled:launch.countdown_enabled,launch_at:launch.launch_at?new Date(launch.launch_at).toISOString():null,launch_title:launch.launch_title.trim()||"Algo especial está chegando",launch_message:launch.launch_message.trim(),launch_image:launch.launch_image.trim()||null,updated_at:new Date().toISOString()}).eq("id",1);
+    setLaunchBusy(false);
+    if(error)return flash("Erro: "+error.message);
+    flash("Configurações de lançamento salvas.");
+  };
 
   const load = useCallback(async () => {
     const [c, p] = await Promise.all([
@@ -48,7 +65,7 @@ function AdminPage() {
 
   useEffect(() => {
     supabase.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => { setIsAdmin(!!data); if (data) load(); });
+      .then(({ data }) => { setIsAdmin(!!data); if (data) { load(); loadLaunch(); } });
   }, [user.id, load]);
 
   const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/auth", replace: true }); };
@@ -133,12 +150,26 @@ function AdminPage() {
       <div className="admin-tabs">
         <button className={tab === "products" ? "selected" : ""} onClick={() => setTab("products")}>Produtos</button>
         <button className={tab === "categories" ? "selected" : ""} onClick={() => setTab("categories")}>Categorias</button>
+        <button className={tab === "launch" ? "selected" : ""} onClick={() => setTab("launch")}>Modo Lançamento</button>
       </div>
       <div className="nav-actions"><Link to="/" className="admin-link">VER SITE</Link><button onClick={signOut} className="admin-link">SAIR</button></div>
     </header>
     {msg && <div className="warning admin-msg">{msg}</div>}
     <main className="admin-main">
-      {tab === "products" ? <>
+      {tab === "launch" ? <section className="editor-panel admin-card">
+        <span className="kicker">LANÇAMENTOS ESPECIAIS</span><h2>Modo Lançamento</h2>
+        {!launchReady ? <div className="warning">Execute a migração SQL de modo lançamento no Supabase para habilitar esta função.</div> : <>
+          <p>Feche temporariamente o catálogo para preparar a coleção. O painel continuará acessível.</p>
+          <div className="check-row"><label><input type="checkbox" checked={launch.launch_mode} onChange={e=>setLaunch(v=>({...v,launch_mode:e.target.checked}))}/> Fechar loja e exibir página de lançamento</label></div>
+          <div className="check-row"><label><input type="checkbox" checked={launch.countdown_enabled} onChange={e=>setLaunch(v=>({...v,countdown_enabled:e.target.checked}))}/> Mostrar contagem regressiva</label></div>
+          {launch.countdown_enabled&&<label>Data e hora do lançamento<input type="datetime-local" value={launch.launch_at} onChange={e=>setLaunch(v=>({...v,launch_at:e.target.value}))}/></label>}
+          <label>Título<input value={launch.launch_title} onChange={e=>setLaunch(v=>({...v,launch_title:e.target.value}))}/></label>
+          <label>Mensagem<textarea rows={3} value={launch.launch_message} onChange={e=>setLaunch(v=>({...v,launch_message:e.target.value}))}/></label>
+          <label>URL HTTPS da imagem de capa (opcional)<input type="url" placeholder="https://..." value={launch.launch_image} onChange={e=>setLaunch(v=>({...v,launch_image:e.target.value}))}/></label>
+          <p>Quando a contagem terminar, a loja continuará fechada até você reabri-la manualmente.</p>
+          <button className="primary-btn" disabled={launchBusy} onClick={saveLaunch}>{launchBusy?"SALVANDO...":"SALVAR CONFIGURAÇÕES"}</button>
+        </>}
+      </section> : tab === "products" ? <>
         <section className="editor-panel admin-card">
           <span className="kicker">{editing ? "EDITANDO PRODUTO" : "NOVO PRODUTO"}</span>
           <h2>{editing ? "Editar peça" : "Cadastrar peça"}</h2>
