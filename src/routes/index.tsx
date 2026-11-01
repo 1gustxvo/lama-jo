@@ -64,16 +64,12 @@ function Home(){
  if(launch?.launch_mode){
    const remaining=launch.countdown_enabled&&launch.launch_at?Math.max(0,new Date(launch.launch_at).getTime()-now):0;
    const days=Math.floor(remaining/86400000),hours=Math.floor(remaining/3600000)%24,minutes=Math.floor(remaining/60000)%60,seconds=Math.floor(remaining/1000)%60;
-   return <div className="lamajo" style={{minHeight:"100vh",background:"#fff8f7",display:"flex",alignItems:"center",justifyContent:"center",padding:"32px 20px",textAlign:"center"}}>
-     <main style={{maxWidth:760,width:"100%"}}>
-       <img src="/logo-lamajo.svg" alt="Uselamajo" style={{width:150,maxWidth:"55%",margin:"0 auto 35px"}}/>
-       <div style={{width:"100%",maxHeight:350,overflow:"hidden",borderRadius:12,marginBottom:32}}><img src={launch.launch_image||"/capa-lamajo.jpg"} alt="Prévia do próximo lançamento" style={{width:"100%",maxHeight:350,objectFit:"cover"}}/></div>
-       <span className="kicker">UM LANÇAMENTO ESPECIAL ESTÁ CHEGANDO</span>
-       <h1 style={{fontSize:"clamp(32px,6vw,64px)",lineHeight:1.1,margin:"20px 0"}}>{launch.launch_title}</h1>
-       <p style={{fontSize:18,margin:"0 auto 30px",maxWidth:550}}>{launch.launch_message}</p>
-       {launch.countdown_enabled&&launch.launch_at&&<div style={{display:"flex",justifyContent:"center",gap:"clamp(8px,3vw,24px)",marginBottom:36,flexWrap:"wrap"}} aria-label="Contagem regressiva para o lançamento">{([[days,"Dias"],[hours,"Horas"],[minutes,"Minutos"],[seconds,"Segundos"]] as const).map(([n,label])=><div key={label} style={{minWidth:65,padding:12,background:"#f5e6e9",borderRadius:8}}><strong style={{fontSize:30,display:"block"}}>{String(n).padStart(2,"0")}</strong><span>{label}</span></div>)}</div>}
+   return <div className="lamajo" style={{minHeight:"100vh",background:"#fff0f5",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px 12px",textAlign:"center"}}>
+     <main style={{maxWidth:1200,width:"100%"}}>
+       <img src="/capa-lancamento.png" alt="Uselamajo: em breve, lançamento da nova coleção de vestidos" style={{width:"100%",height:"auto",display:"block",borderRadius:12}}/>
+       {launch.countdown_enabled&&launch.launch_at&&<section style={{padding:"24px 10px"}}><h2 style={{fontSize:"clamp(18px,3vw,28px)",color:"#a61957",marginBottom:18}}>Contagem regressiva ao vivo</h2><div style={{display:"flex",justifyContent:"center",gap:"clamp(8px,3vw,24px)",flexWrap:"wrap"}} aria-label="Contagem regressiva para o lançamento">{([[days,"Dias"],[hours,"Horas"],[minutes,"Minutos"],[seconds,"Segundos"]] as const).map(([n,label])=><div key={label} style={{minWidth:70,padding:12,background:"#f9d9e7",border:"1px solid #dc91b2",borderRadius:8}}><strong style={{fontSize:30,display:"block",color:"#98134d"}}>{String(n).padStart(2,"0")}</strong><span>{label}</span></div>)}</div></section>}
        <a className="primary-btn" href={instagram} target="_blank" rel="noreferrer"><Instagram size={18}/> ACOMPANHE NO INSTAGRAM</a>
-       <div style={{marginTop:30}}><Link to="/admin" style={{fontSize:12,color:"#9b7a84"}}>Área administrativa</Link></div>
+       <div style={{marginTop:24}}><Link to="/admin" style={{fontSize:12,color:"#9b7a84"}}>Área administrativa</Link></div>
      </main>
    </div>;
  }
