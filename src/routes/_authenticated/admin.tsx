@@ -47,9 +47,9 @@ function AdminPage() {
   },[]);
   const saveLaunch=async()=>{
     if(launch.countdown_enabled&&(!launch.launch_at||!Number.isFinite(new Date(launch.launch_at).getTime())))return flash("Defina uma data válida.");
-    if(launch.launch_image&&!/^https:\/\//i.test(launch.launch_image))return flash("A imagem precisa ter URL HTTPS.");
+
     setLaunchBusy(true);
-    const {error}=await supabase.from("store_settings").update({launch_mode:launch.launch_mode,countdown_enabled:launch.countdown_enabled,launch_at:launch.launch_at?new Date(launch.launch_at).toISOString():null,launch_title:launch.launch_title.trim()||"Algo especial está chegando",launch_message:launch.launch_message.trim(),launch_image:launch.launch_image.trim()||null,updated_at:new Date().toISOString()}).eq("id",1);
+    const {error}=await supabase.from("store_settings").update({launch_mode:launch.launch_mode,countdown_enabled:launch.countdown_enabled,launch_at:launch.launch_at?new Date(launch.launch_at).toISOString():null,launch_title:launch.launch_title.trim()||"Algo especial está chegando",launch_message:launch.launch_message.trim(),launch_image:null,updated_at:new Date().toISOString()}).eq("id",1);
     setLaunchBusy(false);
     if(error)return flash("Erro: "+error.message);
     flash("Configurações de lançamento salvas.");
@@ -165,7 +165,7 @@ function AdminPage() {
           {launch.countdown_enabled&&<label>Data e hora do lançamento<input type="datetime-local" value={launch.launch_at} onChange={e=>setLaunch(v=>({...v,launch_at:e.target.value}))}/></label>}
           <label>Título<input value={launch.launch_title} onChange={e=>setLaunch(v=>({...v,launch_title:e.target.value}))}/></label>
           <label>Mensagem<textarea rows={3} value={launch.launch_message} onChange={e=>setLaunch(v=>({...v,launch_message:e.target.value}))}/></label>
-          <label>URL HTTPS da imagem de capa (opcional)<input type="url" placeholder="https://..." value={launch.launch_image} onChange={e=>setLaunch(v=>({...v,launch_image:e.target.value}))}/></label>
+
           <p>Quando a contagem terminar, a loja continuará fechada até você reabri-la manualmente.</p>
           <button className="primary-btn" disabled={launchBusy} onClick={saveLaunch}>{launchBusy?"SALVANDO...":"SALVAR CONFIGURAÇÕES"}</button>
         </>}
