@@ -20,6 +20,16 @@ function Home(){
  const [ready,setReady]=useState(false);
  const [dbProducts,setDbProducts]=useState<Product[]>([]);
  const [dbCategories,setDbCategories]=useState<string[]>([]);
+ const [launch,setLaunch]=useState<{launch_mode:boolean;countdown_enabled:boolean;launch_at:string|null;launch_title:string;launch_message:string;launch_image:string|null}|null>(null);
+ const [launchLoaded,setLaunchLoaded]=useState(false);
+ const [now,setNow]=useState(Date.now());
+ useEffect(()=>{
+   let active=true;
+   const check=async()=>{const {data,error}=await supabase.from("store_settings").select("launch_mode,countdown_enabled,launch_at,launch_title,launch_message,launch_image").eq("id",1).maybeSingle();if(active){if(!error)setLaunch(data);setLaunchLoaded(true)}};
+   check();const interval=window.setInterval(check,30000);
+   const clock=window.setInterval(()=>setNow(Date.now()),1000);
+   return()=>{active=false;clearInterval(interval);clearInterval(clock)};
+ },[]);
  useEffect(()=>{(async()=>{const [c,p]=await Promise.all([supabase.from("categories").select("id,name").eq("active",true).order("sort_order"),supabase.from("products").select("*").eq("active",true).order("created_at",{ascending:false})]);const names=new Map((c.data??[]).map(x=>[x.id,x.name]));setDbCategories((c.data??[]).map(x=>x.name));setDbProducts((p.data??[]).map(r=>({id:r.id,name:r.name,category:(r.category_id&&names.get(r.category_id))||"Outros",price:Number(r.price),discount:r.promo_price!=null?Number(r.promo_price):undefined,description:r.description,image:r.images[0]||"/capa-lamajo.jpg",images:r.images,sizes:r.sizes,colors:r.colors,new:r.featured,soldout:r.stock<=0})))})().catch(()=>{})},[]);
  const [category,setCategory]=useState("Todas");
  const [visibleRows,setVisibleRows]=useState(2);
@@ -50,6 +60,23 @@ function Home(){
  const open=(p:Product)=>{setSelected(p);setSize(p.sizes[0]||"Consultar");setColor(p.colors[0]||"Consultar");setPicture(0);setFullscreen(false)};
  const productCard=(p:Product)=><article key={p.id} className="piece"><button className="piece-view" onClick={()=>open(p)} aria-label={"Ver detalhes de "+p.name}><div className="piece-image"><img src={p.image} alt={p.name} loading="lazy" onError={e=>{const img=e.currentTarget;if(!img.dataset["fallback"]){img.dataset["fallback"]="true";img.src="/capa-lamajo.jpg"}}}/>{p.soldout?<span className="piece-tag">Esgotado</span>:p.new?<span className="piece-tag">Novidade</span>:p.discount?<span className="piece-tag">Oferta</span>:null}</div><div className="piece-line"><span>{p.category}</span><ArrowUpRight size={15}/></div><h3>{p.name}</h3><div className="piece-price">{p.discount&&p.discount<p.price?<><s>{currency(p.price)}</s> {currency(p.discount)}</>:currency(p.price)}</div></button><a className="piece-contact" href={wa(officialWhatsapp,"Olá! Vi "+p.name+" no site da Uselamajo e gostaria de consultar uma peça semelhante.")} target="_blank" rel="noreferrer"><MessageCircle size={16}/> PEDIR PELO WHATSAPP </a></article>;
  const addProduct=(e:React.FormEvent)=>{e.preventDefault();const price=Number(form.price);if(!form.name.trim()||!form.image.trim()||!Number.isFinite(price)||price<0)return;try{const u=new URL(form.image);if(u.protocol!=="https:"){alert("Use uma URL HTTPS para a imagem");return}}catch{alert("Informe uma URL de imagem válida");return}const item:Product={id:crypto.randomUUID(),name:form.name.trim(),category:form.category,price,discount:form.discount?Number(form.discount):undefined,description:form.description,image:form.image,images:[form.image],sizes:form.sizes.split(",").map(s=>s.trim()).filter(Boolean),colors:form.colors.split(",").map(s=>s.trim()).filter(Boolean),new:form.new,soldout:form.soldout};setStore(v=>({...v,products:[item,...v.products]}));setForm({name:"",category:"Vestidos",price:"",discount:"",description:"",image:"",sizes:"",colors:"",new:true,soldout:false})};
+ if(!launchLoaded)return <div className="lamajo" style={{minHeight:"100vh",display:"grid",placeItems:"center"}}><img src="/logo-lamajo.svg" alt="Uselamajo" style={{width:160}}/></div>;
+ if(launch?.launch_mode){
+   const remaining=launch.countdown_enabled&&launch.launch_at?Math.max(0,new Date(launch.launch_at).getTime()-now):0;
+   const days=Math.floor(remaining/86400000),hours=Math.floor(remaining/3600000)%24,minutes=Math.floor(remaining/60000)%60,seconds=Math.floor(remaining/1000)%60;
+   return <div className="lamajo" style={{minHeight:"100vh",background:"#fff8f7",display:"flex",alignItems:"center",justifyContent:"center",padding:"32px 20px",textAlign:"center"}}>
+     <main style={{maxWidth:760,width:"100%"}}>
+       <img src="/logo-lamajo.svg" alt="Uselamajo" style={{width:150,maxWidth:"55%",margin:"0 auto 35px"}}/>
+       <div style={{width:"100%",maxHeight:350,overflow:"hidden",borderRadius:12,marginBottom:32}}><img src={launch.launch_image||"/capa-lamajo.jpg"} alt="Prévia do próximo lançamento" style={{width:"100%",maxHeight:350,objectFit:"cover"}}/></div>
+       <span className="kicker">UM LANÇAMENTO ESPECIAL ESTÁ CHEGANDO</span>
+       <h1 style={{fontSize:"clamp(32px,6vw,64px)",lineHeight:1.1,margin:"20px 0"}}>{launch.launch_title}</h1>
+       <p style={{fontSize:18,margin:"0 auto 30px",maxWidth:550}}>{launch.launch_message}</p>
+       {launch.countdown_enabled&&launch.launch_at&&<div style={{display:"flex",justifyContent:"center",gap:"clamp(8px,3vw,24px)",marginBottom:36,flexWrap:"wrap"}} aria-label="Contagem regressiva para o lançamento">{([[days,"Dias"],[hours,"Horas"],[minutes,"Minutos"],[seconds,"Segundos"]] as const).map(([n,label])=><div key={label} style={{minWidth:65,padding:12,background:"#f5e6e9",borderRadius:8}}><strong style={{fontSize:30,display:"block"}}>{String(n).padStart(2,"0")}</strong><span>{label}</span></div>)}</div>}
+       <a className="primary-btn" href={instagram} target="_blank" rel="noreferrer"><Instagram size={18}/> ACOMPANHE NO INSTAGRAM</a>
+       <div style={{marginTop:30}}><Link to="/admin" style={{fontSize:12,color:"#9b7a84"}}>Área administrativa</Link></div>
+     </main>
+   </div>;
+ }
  return <div className="lamajo">
   <div className="announcement">UMA CURADORIA PARA REALÇAR SUA ESSÊNCIA <span>✦</span></div>
   <header className="header"><a href="#inicio" className="logo"><img src="/logo-lamajo.svg" alt="Uselamajo"/></a><nav className={menu?"nav-links active":"nav-links"}>{[["Início","#inicio"],["Coleção","#colecao"],["Novidades","#novidades"],["Sobre nós","#sobre"],["Contato","#contato"]].map(([label,url])=><a key={url} href={url} onClick={()=>setMenu(false)}>{label}</a>)}<Link to="/admin" className="mobile-panel-link" onClick={()=>setMenu(false)}><Settings size={18}/> PAINEL ADMINISTRATIVO</Link></nav><div className="nav-actions"><a className="instagram-link" href={instagram} target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={20}/></a><Link className="admin-access" to="/admin" aria-label="Acessar painel administrativo" title="Painel administrativo"><Settings size={19}/><span>PAINEL</span></Link><button aria-label="Pesquisar peças" onClick={()=>{setShowSearch(!showSearch);document.getElementById("colecao")?.scrollIntoView({behavior:"smooth"})}}><Search size={20}/></button><a href="#colecao" className="desktop-shop">VER COLEÇÃO <ArrowUpRight size={15}/></a><button className="hamburger" onClick={()=>setMenu(!menu)} aria-label="Menu">{menu?<X/>:<Menu/>}</button></div></header>
