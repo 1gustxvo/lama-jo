@@ -9,9 +9,9 @@ export const Route = createFileRoute("/")({
 type Product={id:string;name:string;category:string;price:number;discount?:number|undefined;description:string;image:string;images:string[];sizes:string[];colors:string[];new:boolean;soldout:boolean;illustrative?:boolean};
 const categories=["Todas","Vestidos","Blusas","Conjuntos","Calças","Saias","Shorts","Outros"];
 const instagram="https://www.instagram.com/uselamajo/";
-const officialWhatsapp="5586995769516";
+const officialWhatsapp="5586998390546";
 const emptyAbout="A Uselamajo acredita que a moda vai além das tendências. Cada peça é uma oportunidade de expressar personalidade, valorizar sua beleza e fazer você se sentir ainda mais confiante. Nossa proposta é oferecer uma experiência especial, com peças selecionadas para acompanhar diferentes momentos e estilos.";
-const initial={products:[] as Product[],whatsapp:"5586995769516",about:emptyAbout};
+const initial={products:[] as Product[],whatsapp:"5586998390546",about:emptyAbout};
 type Store=typeof initial;
 const currency=(n:number)=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const wa=(phone:string,msg:string)=>"https://wa.me/"+phone.replace(/\D/g,"")+"?text="+encodeURIComponent(msg);
@@ -45,9 +45,9 @@ function Home(){
  const [fullscreen,setFullscreen]=useState(false);
  const [editor,setEditor]=useState(false);
  const [form,setForm]=useState({name:"",category:"Vestidos",price:"",discount:"",description:"",image:"",sizes:"",colors:"",new:true,soldout:false});
- const [phoneInput,setPhoneInput]=useState("5586995769516");
+ const [phoneInput,setPhoneInput]=useState("5586998390546");
  const [aboutInput,setAboutInput]=useState(emptyAbout);
- useEffect(()=>{try{const raw=localStorage.getItem("lamajo-demo-v2");if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed.products)){setStore({products:parsed.products,whatsapp:"5586995769516",about:parsed.about||emptyAbout});setPhoneInput("5586995769516");setAboutInput(parsed.about||emptyAbout)}}}catch{}setReady(true)},[]);
+ useEffect(()=>{try{const raw=localStorage.getItem("lamajo-demo-v2");if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed.products)){setStore({products:parsed.products,whatsapp:"5586998390546",about:parsed.about||emptyAbout});setPhoneInput("5586998390546");setAboutInput(parsed.about||emptyAbout)}}}catch{}setReady(true)},[]);
  useEffect(()=>{if(ready){try{localStorage.setItem("lamajo-demo-v2",JSON.stringify(store))}catch{}}},[store,ready]);
  useEffect(()=>{const listener=(e:KeyboardEvent)=>{if(e.key==="Escape"){if(fullscreen)setFullscreen(false);else {setSelected(null);setEditor(false)}}};window.addEventListener("keydown",listener);return()=>window.removeEventListener("keydown",listener)},[fullscreen]);
  const real=useMemo(()=>[...dbProducts,...store.products],[dbProducts,store.products]);
